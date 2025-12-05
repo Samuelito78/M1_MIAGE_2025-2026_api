@@ -55,7 +55,7 @@ function updateAssignment(req, res) {
             console.log(err);
             return res.send(err);
         }
-        res.json({message: 'updated'});
+        res.json({message: `${assignment.name} updated`});
 
       // console.log('updated ', assignment)
     });
@@ -65,7 +65,7 @@ function updateAssignment(req, res) {
 // suppression d'un assignment (DELETE)
 function deleteAssignment(req, res) {
     console.log("DELETE assignment : ");
-    let assignmentId = req.params._id;
+    let assignmentId = req.params.id;
     Assignment.findOneAndDelete({id: assignmentId}, (err, assignment) => {
         if (err) {
             return res.send(err);
