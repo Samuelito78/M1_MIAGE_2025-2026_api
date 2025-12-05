@@ -64,6 +64,7 @@ function updateAssignment(req, res) {
 
 // suppression d'un assignment (DELETE)
 function deleteAssignment(req, res) {
+    console.log("DELETE assignment : ");
     let assignmentId = req.params._id;
     Assignment.findOneAndDelete({id: assignmentId}, (err, assignment) => {
         if (err) {
