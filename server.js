@@ -2,6 +2,8 @@ let express = require('express');
 let app = express();
 let bodyParser = require('body-parser');
 let assignment = require('./routes/assignments');
+let authRoutes = require('./routes/auth');
+const { authenticate, requireRole } = require('./middleware/auth');
 
 let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -28,7 +30,7 @@ mongoose.connect(uri, options)
 // Pour accepter les connexions cross-domain (CORS)
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
@@ -42,17 +44,19 @@ let port = process.env.PORT || 8010;
 // les routes
 const prefix = '/api';
 
+app.use(prefix + '/auth', authRoutes);
+
 app.route(prefix + '/assignments')
   .get(assignment.getAssignments);
 
 app.route(prefix + '/assignment/:id')
   .get(assignment.getAssignment)
-  .delete(assignment.deleteAssignment);
+  .delete(authenticate, requireRole('admin'), assignment.deleteAssignment);
 
 
 app.route(prefix + '/assignment')
-  .post(assignment.postAssignment)
-  .put(assignment.updateAssignment);
+  .post(authenticate, requireRole('admin'), assignment.postAssignment)
+  .put(authenticate, requireRole('admin'), assignment.updateAssignment);
 
 // On démarre le serveur
 app.listen(port, "0.0.0.0");
